@@ -1,12 +1,11 @@
 import os
 import sqlite3
 import tkinter as tk
-from tkinter import messagebox, scrolledtext
+from tkinter import messagebox, scrolledtext, filedialog
 
 # Function to retrieve and display call log information
 def fetch_call_log_info():
     # Get input values
-    case_created = case_created_var.get()
     case_folder_directory = folder_directory_var.get()
 
     # Validate directory
@@ -65,19 +64,27 @@ def fetch_call_log_info():
     except sqlite3.Error as e:
         messagebox.showerror("Error", f"An error occurred while accessing the database: {e}")
 
+# Function to browse and select the Autopsy case folder
+def browse_folder():
+    folder_path = filedialog.askdirectory(title="Select Autopsy Case Folder")
+    if folder_path:
+        folder_directory_var.set(folder_path)
+
 # Set up the Tkinter GUI window
 root = tk.Tk()
 root.title("Call Log Learner")
 root.geometry("800x700")
 
 # Create labels, inputs, and buttons
-tk.Label(root, text="Have you created an Autopsy case? (yes/no):").pack(pady=5)
-case_created_var = tk.StringVar(value="yes")
-tk.Entry(root, textvariable=case_created_var).pack(pady=5)
+tk.Label(root, text="Select your Autopsy Case Folder:").pack(pady=5)
 
-tk.Label(root, text="Enter your Autopsy Case Folder Directory:").pack(pady=5)
 folder_directory_var = tk.StringVar()
-tk.Entry(root, textvariable=folder_directory_var).pack(pady=5)
+folder_entry = tk.Entry(root, textvariable=folder_directory_var, width=50)
+folder_entry.pack(pady=5)
+
+# Browse button to select folder
+browse_button = tk.Button(root, text="Browse", command=browse_folder)
+browse_button.pack(pady=5)
 
 # Button to fetch the call log information
 fetch_button = tk.Button(root, text="Fetch Call Log Info", command=fetch_call_log_info)
