@@ -36,11 +36,11 @@ def call_log_learner():
     print("\nFound the 'autopsy.db' database. Attempting to retrieve call log information...")
     
     try:
-        # Connect to the SQLite database
+    # Connect to the SQLite database
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
 
-        # Query to retrieve phone numbers and associated file information
+        # Updated query for retrieving phone numbers from the 'accounts' table
         query = """
         SELECT 
             a.account_unique_identifier AS phone_number,
@@ -54,19 +54,21 @@ def call_log_learner():
             a.account_type_id = 3;
         """
 
+    # Execute the query
         cursor.execute(query)
         results = cursor.fetchall()
 
-        # Display results
+    # Display results only for phone numbers starting with '+'
         if results:
-            print("\nCall Log Information:")
+            print("\nFiltered Call Log Information (Phone numbers starting with '+'):")
             print("-" * 60)
             for row in results:
                 phone_number, file_name, file_path = row
-                print(f"Phone Number: {phone_number}")
-                print(f"File Name: {file_name}")
-                print(f"File Path: {file_path}")
-                print("-" * 60)
+                if str(phone_number).startswith('+'):  # Only display if phone number starts with '+'
+                    print(f"Phone Number: {phone_number}")
+                    print(f"File Name: {file_name}")
+                    print(f"File Path: {file_path}")
+                    print("-" * 60)
         else:
             print("\nNo call log information found in the database.")
 
