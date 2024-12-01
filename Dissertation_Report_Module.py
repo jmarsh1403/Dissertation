@@ -1,19 +1,85 @@
-import subprocess
+import os
+import sqlite3
 
-def run_autopsy():
-    autopsy_path = r"C:\Program Files\Autopsy-4.21.0\bin\autopsy64.exe"
+def call_log_learner():
+    print("Welcome to Call Log Learner!")
+    print("Note: This program currently works only on Windows 10/11 systems with Autopsy 4.21.0.")
+    print("-" * 60)
+
+    # Ask if an Autopsy case has been created
+    case_created = input("Have you created an Autopsy case? (yes/no): ").strip().lower()
+    while case_created not in {"yes", "no"}:
+        case_created = input("Please enter 'yes' or 'no': ").strip().lower()
+
+    # Ask for the Autopsy Case Folder Directory
+    case_folder_directory = input("Enter your Autopsy Case Folder Directory: ").strip()
+    while not os.path.isdir(case_folder_directory):
+        print("Invalid directory. Please enter a valid folder path.")
+        case_folder_directory = input("Enter your Autopsy Case Folder Directory: ").strip()
+
+    # Store data
+    user_data = {
+        "Case Created": case_created,
+        "Case Folder Directory": case_folder_directory
+    }
+
+    # Print the collected data for confirmation
+    print("\nCollected Data:")
+    for key, value in user_data.items():
+        print(f"{key}: {value}")
+    
+    database_path = os.path.join(case_folder_directory, "autopsy.db")
+    if not os.path.isfile(database_path):
+        print(f"Could not find the 'autopsy.db' database file at: {database_path}")
+        return
+
+    print("\nFound the 'autopsy.db' database. Attempting to retrieve call log information...")
     
     try:
-        result = subprocess.run([autopsy_path], capture_output=True, text=True, shell=True)
-        print("Output:", result.stdout)
-        print("Error:", result.stderr)
-        print("Return Code:", result.returncode)
-    except FileNotFoundError as e:
-        print(f"File not found: {e}")
-    except subprocess.CalledProcessError as e:
-        print(f"CalledProcessError: {e}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        # Connect to the SQLite database
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
 
+        # Query to retrieve phone numbers and associated file information
+        query = """
+        SELECT 
+            a.account_unique_identifier AS phone_number,
+            f.name AS file_name,
+            f.parent_path AS file_path
+        FROM 
+            accounts a
+        JOIN 
+            tsk_files f ON a.account_id = f.obj_id
+        WHERE 
+            a.account_type_id = 3;
+        """
+
+        cursor.execute(query)
+        results = cursor.fetchall()
+
+        # Display results
+        if results:
+            print("\nCall Log Information:")
+            print("-" * 60)
+            for row in results:
+                phone_number, file_name, file_path = row
+                print(f"Phone Number: {phone_number}")
+                print(f"File Name: {file_name}")
+                print(f"File Path: {file_path}")
+                print("-" * 60)
+        else:
+            print("\nNo call log information found in the database.")
+
+        # Close the database connection
+        conn.close()
+
+    except sqlite3.Error as e:
+        print(f"An error occurred while accessing the database: {e}")
+
+
+    print("\nThank you for using Call Log Learner. Goodbye!")
+
+# Run the program
 if __name__ == "__main__":
-    run_autopsy()
+    call_log_learner()
+
