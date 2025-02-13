@@ -6,20 +6,16 @@ def call_log_learner():
     print("Note: This program currently works only on Windows 10/11 systems with Autopsy 4.21.0.")
     print("-" * 60)
 
-    # Ask if an Autopsy case has been created
-    case_created = input("Have you created an Autopsy case? (yes/no): ").strip().lower()
-    while case_created not in {"yes", "no"}:
-        case_created = input("Please enter 'yes' or 'no': ").strip().lower()
-
-    # Ask for the Autopsy Case Folder Directory
+     # Ask for the Autopsy Case Folder Directory
     case_folder_directory = input("Enter your Autopsy Case Folder Directory: ").strip()
+    case_folder_directory = r"C:\Users\Jack\OneDrive - University of Gloucestershire\Diss\Diss Assignment\Autopsy\Dissertation"
     while not os.path.isdir(case_folder_directory):
         print("Invalid directory. Please enter a valid folder path.")
         case_folder_directory = input("Enter your Autopsy Case Folder Directory: ").strip()
 
+
     # Store data
     user_data = {
-        "Case Created": case_created,
         "Case Folder Directory": case_folder_directory
     }
 
@@ -68,7 +64,7 @@ def call_log_learner():
     except sqlite3.Error as e:
         print(f"An error occurred while accessing the Creator database: {e}")
 
-    # Ask the user for a country code
+
     match_found = False
 
     while not match_found:
@@ -81,15 +77,22 @@ def call_log_learner():
         # Convert the input to an integer after confirming it's a digit
         country_code = int(country_code_input)
 
+        if country_code == 1:
+            if handle_usa_code():  # If USA is handled, exit the function
+                return  
+
         for code in phone_codes:
             if country_code == code[0]:
                 match_found = True
                 break
 
         if match_found:
-            print("It Matches")
+            print("Valid country code")
         else:
-            print("It does not match")
+            print("Invalid country code")
+
+
+        
 
     try:
         # Connect to the Autopsy database
@@ -120,7 +123,7 @@ def call_log_learner():
             print("-" * 60)
             for row in results:
                 phone_number, file_name, file_path = row
-                if str(phone_number).startswith(f'+{country_code}'):  # Only display if phone number starts with the country code
+                if str(phone_number).startswith(f'+{country_code}'):
                     print(f"Phone Number: {phone_number}")
                     print(f"File Name: {file_name}")
                     print(f"File Path: {file_path}")
@@ -135,6 +138,63 @@ def call_log_learner():
         print(f"An error occurred while accessing the Autopsy database: {e}")
 
     print("\nThank you for using Call Log Learner. Goodbye!")
+
+
+def handle_usa_code():
+    # Path to the area_codes database
+    area_codes_db_path = r"C:\Users\Jack\OneDrive - University of Gloucestershire\Diss\Diss Assignment\Dissertation\area_codes.db"
+
+    # Verify the file path
+    if not os.path.isfile(area_codes_db_path):
+        print("Database file does not exist at the specified path.")
+        return False
+
+    try:
+        # Connect to the area_codes database
+        conn = sqlite3.connect(area_codes_db_path)
+        cursor = conn.cursor()
+
+        # Query to retrieve states and their area codes
+        query = """
+        SELECT 
+            s.state_name, 
+            a.area_code 
+        FROM 
+            States s
+        JOIN 
+            AreaCodes a ON s.id = a.state_id;
+        """
+
+        # Execute the query
+        cursor.execute(query)
+        results = cursor.fetchall()
+
+        # Group area codes by state
+        state_area_codes = {}
+        for state_name, area_code in results:
+            if state_name not in state_area_codes:
+                state_area_codes[state_name] = []
+            state_area_codes[state_name].append(area_code)
+
+        # Display the states and their area codes
+        if state_area_codes:
+            print("\nStates and their Area Codes:")
+            print("-" * 60)
+            for state_name, area_codes in state_area_codes.items():
+                area_codes_str = ", ".join(area_codes)
+                print(f"State: {state_name}, Area Codes: {area_codes_str}")
+            print("-" * 60)
+        else:
+            print("\nNo states or area codes found in the database.")
+
+        # Close the area_codes database connection
+        conn.close()
+
+    except sqlite3.Error as e:
+        print(f"An error occurred while accessing the area_codes database: {e}")
+
+    return True
+
 
 # Run the program
 if __name__ == "__main__":
