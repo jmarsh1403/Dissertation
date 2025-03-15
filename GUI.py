@@ -9,6 +9,9 @@ With this aim in mind, hopefully the application will be edited or added too by 
 Requirements:
 - Python 3.11 or later (may work on earlier versions but not tested)
 - Autopsy file named "Dissertation" with the autopsy.db file inside (do not move or rename as could break everything)
+- Creator.db, area_codes and HintArt1 within route of where Call Log Learner is stored
+- Tkinter verion 8.6 or later (may work on earlier versions but not tested)
+- Pillow 11.1.0 (may work on earlier versions but not tested)
 """
 import os
 import sqlite3
@@ -84,7 +87,7 @@ def fetch_call_log_info():
 # The code retrives phone numbers which are grouped by states and opens a window to filter by state and or area code
 def handle_usa_code(call_log_info):
     # Path to the area_codes database
-    area_codes_db_path = r"C:\Users\Jack\OneDrive - University of Gloucestershire\Diss\Diss Assignment\Dissertation\area_codes.db"
+    area_codes_db_path = r"./area_codes.db"
 
     # Verify the file path - error handling
     if not os.path.isfile(area_codes_db_path):
@@ -236,7 +239,7 @@ def load_country_codes():
     try:
         # Get valid country codes
         autopsy_db_path = os.path.join(case_folder_directory, "autopsy.db")
-        creator_db_path = r"C:\Users\Jack\OneDrive - University of Gloucestershire\Diss\Diss Assignment\Dissertation\Creator.db"
+        creator_db_path = r"./Creator.db"
 
         #Connect to Autopsy database
         conn_autopsy = sqlite3.connect(autopsy_db_path)
@@ -401,7 +404,7 @@ def show_notification_window2():
         text=(
             "Below this screen is your main window for call log analysis\n\n"
             "On the left you will see the navigation bar\n"
-            "This will allow you to bring back helpful notifications that you may have closed\n\n"
+            "This will allow you to bring back helpful pop-ups that you may have closed\n\n"
             "Please click browse and select the autopsy file previosuly provided\n"
             "The program will then extract the call log data\n\n"
             "Note for this version of the program that is just the following info:\n"
@@ -481,7 +484,7 @@ def show_notification_window4():
         "You can select an area code to further filter the phone numbers\n\n"
         "By using the Display Phone numbers button you can see just the filtered results\n"
         "If you want to challenge yourself and try and decipher all the data - click the Display all Phone Numbers button\n\n"
-        "To learn more about the data please click the onto the notifications 5 and 6\n"
+        "To learn more and to complete a task - please click onto the task within the navigation window\n"
         ),
         justify="center",
         wraplength=340
