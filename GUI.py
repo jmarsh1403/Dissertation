@@ -17,7 +17,7 @@ from tkinter import messagebox, scrolledtext, filedialog, ttk, simpledialog
 from PIL import Image, ImageTk
 import webbrowser
 
-#This def is used to fetch call log info for a selected country code
+#This function is used to fetch call log info for a selected country code
 def fetch_call_log_info():
     selected_country_code = country_code_var.get()
     #Error handling for no country code selected
@@ -25,20 +25,20 @@ def fetch_call_log_info():
         messagebox.showerror("Error", "Please select a country code first!")
         return
 
-    # Clear any previous output
+    #Clear any previous output
     result_text.delete("1.0", tk.END)
 
-    # Build the autopsy database path from the case folder
+    #Builds the autopsy database path from the case folder
     case_folder_directory = folder_directory_var.get()
     autopsy_db_path = os.path.join(case_folder_directory, "autopsy.db")
 
     try:
-        # Connecting to the Autopsy database
+        #Connects to the Autopsy database
         conn = sqlite3.connect(autopsy_db_path)
         cursor = conn.cursor()
 
-        # Query to retrieve phone numbers from the accounts table with a join on tsk_files
-        # Query from tsk_files may not achieve same results as Autopsy does on its own database
+        #Query to retrieve phone numbers from the accounts table with a join on tsk_files
+        #Query from tsk_files may not achieve same results as Autopsy does on its own database
         query = """
         SELECT 
             a.account_unique_identifier AS phone_number,
@@ -52,15 +52,15 @@ def fetch_call_log_info():
             a.account_type_id = 3;
         """
 
-        # Execute the query and fetch results
+        #Executes query and fetch results
         cursor.execute(query)
         results = cursor.fetchall()
 
-        # Store the call log information
+        #Initialises call_log_info as list
         call_log_info = []
 
         
-        # Results filtered by country code and if phone number starts with +
+        #call_log_into = phone numbers that start with +, file name and file path from accounts database table
         if results:
             for row in results:
                 phone_number, file_name, file_path = row
@@ -76,7 +76,7 @@ def fetch_call_log_info():
     except sqlite3.Error as e:
         messagebox.showerror("Database Error", f"An error occurred while accessing the Autopsy database: {e}")
 
-    #If country code is 1 the handle USA code def is called. With current data the USA def is always called
+    #If country code is 1 the handle USA code function is called. With current data the USA function is always called
     if selected_country_code == '1'and valid_country_codes:
         handle_usa_code(call_log_info)
     #Error handling for no valid country codes added
@@ -86,9 +86,9 @@ def fetch_call_log_info():
 
 
 #For phone numbers starting with 1 (all of them for this data) - the area_codes database is connected too
-#The code retrives phone numbers which are grouped by states and opens a window to filter by state and or area code
+#The code retrieves phone numbers which are grouped by states and opens a window to filter by state and or area code
 def handle_usa_code(call_log_info):
-    # Path to the area_codes database
+    #Path to the area_codes database
     area_codes_db_path = r"./area_codes.db"
 
     #Verify the file path - error handling
@@ -97,11 +97,11 @@ def handle_usa_code(call_log_info):
         return
 
     try:
-        # Connect to the area_codes database
+        #Connects to the area_codes database
         conn = sqlite3.connect(area_codes_db_path)
         cursor = conn.cursor()
 
-        # Query to retrieve states and their area codes from db
+        #Query to retrieve states and their area codes from db
         query = """
         SELECT 
             s.state_name, 
@@ -112,18 +112,18 @@ def handle_usa_code(call_log_info):
             AreaCodes a ON s.id = a.state_id;
         """
 
-        # Executes the query
+        #Executes the query
         cursor.execute(query)
         results = cursor.fetchall()
 
-        # Groups area codes by state - states can have more than one area code
+        #Groups area codes by state - states can have more than one area code
         state_area_codes = {}
         for state_name, area_code in results:
             if state_name not in state_area_codes:
                 state_area_codes[state_name] = []
             state_area_codes[state_name].append(area_code)
 
-        # Filters phone numbers by area code - area code is the 3 digits after the country code
+        #Filters phone numbers by area code - area code is the 3 digits after the country code
         valid_states = {}
         for state, codes in state_area_codes.items():
             for code in codes:
@@ -131,16 +131,16 @@ def handle_usa_code(call_log_info):
                     valid_states[state] = codes
                     break
 
-        # Closes connection to db
+        #Closes connection to the area_codes db
         conn.close()
 
-        #shows notification window 4
+        #Shows notification window 4
         show_notification_window4()
 
         #Creates window for state and area code selection
         selection_window = tk.Toplevel()
         selection_window.title("Select State and Area Code")
-        selection_window.geometry("355x160+1100+150")  # Set size and position (width x height + x + y)
+        selection_window.geometry("355x160+1100+150")  #Sets size and position (width x height + x + y)
 
         #Create and organise frames
         selection_frame = ttk.Frame(selection_window, padding="10")
@@ -156,7 +156,7 @@ def handle_usa_code(call_log_info):
         area_code_combobox = ttk.Combobox(selection_frame, textvariable=area_code_var, width=30)
         area_code_combobox.grid(row=1, column=1, padx=5, sticky=tk.W)
 
-        #Button runs def update_area_codes
+        #Button runs function update_area_codes
         state_combobox.bind("<<ComboboxSelected>>", lambda event: update_area_codes(state_var, valid_states, area_code_combobox))
 
         #Create a button to display filtered phone numbers
@@ -166,11 +166,11 @@ def handle_usa_code(call_log_info):
         #Create a button to display all phone numbers
         display_all_button = ttk.Button(selection_frame, text="Display All Phone Numbers", command=lambda: display_all_phone_numbers(call_log_info))
         display_all_button.grid(row=3, column=0, columnspan=2, pady=10)
-    #Error handling for database error
+    #Error handling for database errors
     except sqlite3.Error as e:
         messagebox.showerror("Database Error", f"An error occurred while accessing the area_codes database: {e}")
         
-#Def ran when the display all phone numbers button is clicked
+#Function runs when the display all phone numbers button is clicked
 def display_all_phone_numbers(call_log_info):
     #Deletes any previous output
     result_text.delete("1.0", tk.END)
@@ -197,7 +197,7 @@ def display_phone_numbers(state_var, area_code_var, call_log_info, valid_states)
     #Retrieves selected state and area code
     selected_state = state_var.get()
     selected_area_code = area_code_var.get()
-    #removes any previous output
+    #Removes any previous output
     result_text.delete("1.0", tk.END)
     #If an area code is selected - the phone numbers are filtered by area code (the three digits after the country code)
     if selected_area_code:
@@ -260,10 +260,10 @@ def load_country_codes():
             #Trying for length of 1, 2 and 3 as country codes can be different lengths
             for length in range(1, 4):
                 if len(code_part) >= length:
-                    #stores potential country codes
+                    #Stores potential country codes
                     potential_codes.add(code_part[:length])
 
-        #Connect to Creator.db
+        #Connects to Creator.db
         conn_creator = sqlite3.connect(creator_db_path)
         cursor_creator = conn_creator.cursor()
         #Query to retrieve country codes from the Countries table
@@ -282,13 +282,13 @@ def load_country_codes():
         #Create new window for country code selection
         code_window = tk.Toplevel()
         code_window.title("Select Country Code")
-        #Sets size and position (width x height + x + y)
+        #Sets size and position of the window
         code_window.geometry("300x400+500+300")  
 
         #Creates frame to contain listbox and scrollbar
         list_frame = ttk.Frame(code_window)
         list_frame.pack(padx=10, pady=10)
-        #Listbox and scrollar creation
+        #Listbox and scrollbar creation
         listbox = tk.Listbox(list_frame, selectmode=tk.SINGLE, width=20, height=15)
         scrollbar = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=listbox.yview)
         listbox.configure(yscrollcommand=scrollbar.set)
@@ -299,7 +299,7 @@ def load_country_codes():
         listbox.pack(side=tk.LEFT, fill=tk.BOTH)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        #Selection button - runs on_code_select def
+        #Selection button - runs on_code_select function 
         ttk.Button(code_window, text="Select Code", command=lambda: on_code_select(listbox, code_window)).pack(pady=5)
     #Database error handling
     except Exception as e:
@@ -316,7 +316,7 @@ def browse_folder():
     folder_path = filedialog.askdirectory(title="Select Autopsy Case Folder")
     if folder_path:
         folder_directory_var.set(folder_path)
-        #Runs load_country_codes def
+        #Runs load_country_codes function
         load_country_codes()
 
 #Closes the main window and shows the intro screen without shutting down program
@@ -328,7 +328,7 @@ def back_to_intro():
         #Show the intro screen
         show_intro_screen()
 
-#Main window def
+#Main window function - sets up and runs the main window
 def show_main_window():
     #Declare global variables
     global folder_directory_var, country_code_var, result_text, root
@@ -351,33 +351,33 @@ def show_main_window():
     folder_entry = ttk.Entry(input_frame, textvariable=folder_directory_var, width=50)
     folder_entry.grid(row=0, column=1, padx=5, sticky=tk.W)
 
-    #Browse button - runs browse_folder def when clicked
+    #Browse button - runs browse_folder function when clicked
     browse_button = ttk.Button(input_frame, text="Browse", command=browse_folder)
     browse_button.grid(row=0, column=2, padx=5)
 
     ttk.Label(input_frame, text="Select a Country Code:").grid(row=1, column=0, sticky=tk.W, pady=5)
 
-    #Combobox for country code selection - automatically populated by load_country_codes def
+    #Combobox for country code selection - automatically populated by load_country_codes function
     country_code_var = tk.StringVar()
     country_code_combobox = ttk.Combobox(input_frame, textvariable=country_code_var, width=10)
     country_code_combobox.grid(row=1, column=1, padx=5, sticky=tk.W)
 
-    #Runs fetch_call_log_info def when clicked
+    #Runs fetch_call_log_info function when clicked
     fetch_button = ttk.Button(input_frame, text="Fetch Call Log Info", command=fetch_call_log_info)
     fetch_button.grid(row=2, column=0, columnspan=3, pady=10)
 
-    #Scrolled text widget to display the results of the call log info
+    #Scrolled text widget - displays the results of the call log info
     result_text = scrolledtext.ScrolledText(result_frame, width=70, height=15)
     result_text.pack(fill=tk.BOTH, expand=True)
 
-    #Show the notification windows 1 and 2
+    #Shows the notification windows 1 and 2
     show_notification_window1()
     show_notification_window2()
 
-    #Show the navigation bar
+    #Shows the navigation bar
     show_navigation_bar()
 
-    #Start the Tkinter main loop
+    #Starts the Tkinter main loop
     root.mainloop()
 
 #Notification window1 - browse button help
@@ -385,14 +385,14 @@ def show_notification_window1():
     notification_window1 = tk.Toplevel(root)
     notification_window1.title("Browse Button Help")
     notification_window1.geometry("500x200+900+115")  
-    notification_window1.attributes("-topmost", True)  #Make the window stay on top
+    notification_window1.attributes("-topmost", True)  #Makes the window stay on top
     ttk.Label(
         notification_window1,
         text=(
             "<------Here is the browse button                                                                    \n\n\n"
             "Fact: All the information about an Autopsy case is saved witin one database file\n"
-            "This db dile is called autopsy.db and can be easily explored and looked into using tools such as:\n"
-            "Browser for SQLite for browing the database directly\n"
+            "This db file is called autopsy.db and can be easily explored and looked into using tools such as:\n"
+            "Browser for SQLite for browsing the database directly\n"
             "Online tools such as dbdiagram.io for visualising the database\n"
         ),
         justify="center",
@@ -413,7 +413,7 @@ def show_notification_window2():
             "Below this screen is your main window for call log analysis\n\n"
             "On the left you will see the navigation bar\n"
             "This will allow you to bring back helpful notifications that you may have closed\n\n"
-            "Please click browse and select the autopsy file previosuly provided\n"
+            "Please click browse and select the autopsy file previously provided\n"
             "The program will then extract the call log data\n\n"
             "Note for this version of the program that is just the following info:\n"
             "Phone number, File path and File name\n"
@@ -425,7 +425,7 @@ def show_notification_window2():
     #Force update to calculate window size
     notification_window2.update_idletasks()
     
-    #Center window relative to main window
+    #Centre window relative to main window
     main_window_x = root.winfo_x()
     main_window_y = root.winfo_y()
     main_window_width = root.winfo_width()
@@ -466,7 +466,7 @@ def show_notification_window3():
         "• ACPO Good Practice Guide for Digital Evidence - not a law but commonly followed by Police Forces within the UK\n\n"
         "Why standardization matters and how it is applied to call logs:\n"
         "• Country codes (+1 for USA) are followed worldwide, without them the process of calling another country may not work or be extremely complex\n"
-        "• DF requires similar standardization for accruate and reliable evidence\n"
+        "• DF requires similar standardization for accurate and reliable evidence\n"
         "• While practices vary throughout Digital Forensic Units (DFUs), core principles remain consistent\n\n"
         "Best practice recommendations:\n"
         "• Maintain clear documentation and notes\n"
@@ -568,7 +568,7 @@ def show_notification_window6():
     notification_window6.geometry("1300x900+75+50")  
     
     text_label1 = (
-       "When researching American phone numbers you should have comew across websites such as: "
+       "When researching American phone numbers you should have come across websites such as: "
     )
     text_label1 = ttk.Label(
         notification_window6,
@@ -592,7 +592,7 @@ def show_notification_window6():
         "As you can see from the screenshot below, the file path for both is different \n"
     )
 
-    # Create and pack the second label
+    #Create and pack the second label
     text_label2 = ttk.Label(
         notification_window6,
         text=text_label2,
@@ -621,7 +621,7 @@ def show_notification_window6():
     image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
     photo = ImageTk.PhotoImage(image)
 
-    # Keep a reference to the image to prevent garbage collection
+    #Keeps reference to the image to prevent garbage collection
     notification_window6.photo = photo
 
     #Display the image in a label with 5 pixels of padding
@@ -658,9 +658,9 @@ def show_navigation_bar():
         nav_bar,
         text="Back to the Intro Screen",
         width=30,
-        command=back_to_intro #Runs back_to_intro def
+        command=back_to_intro #Runs back_to_intro function
     ).pack(pady=10)
-    #Buttons to show the notifications and their respective def
+    #Buttons to show the notifications and their respective functions
     ttk.Button(nav_bar, text="What's what?", command=show_notification_window2, width=30).pack(pady=10)
     ttk.Button(nav_bar, text="Browse Button Help", command=show_notification_window1, width=30).pack(pady=10)
     ttk.Button(nav_bar, text="Country Code Help", command=show_notification_window3, width=30).pack(pady=10)
@@ -668,6 +668,7 @@ def show_navigation_bar():
     ttk.Button(nav_bar, text="Task", command=show_notification_window5, width=30).pack(pady=10)
     ttk.Button(nav_bar, text="Task Help", command=show_notification_window6, width=30).pack(pady=10)
 
+#Additional learning screen function - opens a new window with additional learning resources
 def show_additional_learning():
     additional_window = tk.Toplevel()
     additional_window.title("Additional Learning")
