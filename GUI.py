@@ -76,17 +76,22 @@ def fetch_call_log_info():
     except sqlite3.Error as e:
         messagebox.showerror("Database Error", f"An error occurred while accessing the Autopsy database: {e}")
 
-    # If country code is 1 the handle USA code def is called. With current data the USA def is always called
-    if selected_country_code == '1':
+    #If country code is 1 the handle USA code def is called. With current data the USA def is always called
+    if selected_country_code == '1'and valid_country_codes:
         handle_usa_code(call_log_info)
+    #Error handling for no valid country codes added
+    elif not valid_country_codes:
+        messagebox.showerror("Error", "Please select a file with valid country codes.")
+        return
 
-# For phone numbers starting with 1 (all of them for this data) - the area_codes database is connected too
-# The code retrives phone numbers which are grouped by states and opens a window to filter by state and or area code
+
+#For phone numbers starting with 1 (all of them for this data) - the area_codes database is connected too
+#The code retrives phone numbers which are grouped by states and opens a window to filter by state and or area code
 def handle_usa_code(call_log_info):
     # Path to the area_codes database
     area_codes_db_path = r"./area_codes.db"
 
-    # Verify the file path - error handling
+    #Verify the file path - error handling
     if not os.path.isfile(area_codes_db_path):
         messagebox.showerror("Error", "Database file does not exist at the specified path.")
         return
@@ -234,7 +239,7 @@ def load_country_codes():
         return
         #Attempts to connect to the Autopsy database and creator database
     try:
-        # Get valid country codes
+        #Get valid country codes
         autopsy_db_path = os.path.join(case_folder_directory, "autopsy.db")
         creator_db_path = r"./Creator.db"
 
@@ -267,7 +272,12 @@ def load_country_codes():
         valid_codes = {str(code[0]) for code in cursor_creator.fetchall()}
 
         #Creates a set where potential codes and valid codes intersect
+        global valid_country_codes #Made into global variable for error handling in Handle_USA_Code 
         valid_country_codes = sorted(potential_codes.intersection(valid_codes), key=int)
+
+        if not valid_country_codes:
+            messagebox.showerror("Error", "Please select a file with valid country codes.")
+            return
         
         #Create new window for country code selection
         code_window = tk.Toplevel()
@@ -295,6 +305,7 @@ def load_country_codes():
     except Exception as e:
         messagebox.showerror("Database Error", f"Failed to load country codes: {str(e)}")
 #Updates the area codes combobox based on the selected state and closes the country code window
+
 def on_code_select(listbox, code_window):
     selected = listbox.get(listbox.curselection())
     country_code_var.set(selected[1:])  
