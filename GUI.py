@@ -83,6 +83,9 @@ def fetch_call_log_info():
     elif not valid_country_codes:
         messagebox.showerror("Error", "Please select a file with valid country codes.")
         return
+    #runs if country code is not 1 and valid country codes exist within current db selected 
+    elif valid_country_codes and selected_country_code != '1':
+        display_all_phone_numbers(call_log_info)
 
 
 #For phone numbers starting with 1 (all of them for this data) - the area_codes database is connected too
