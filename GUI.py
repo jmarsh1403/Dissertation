@@ -9,9 +9,6 @@ With this aim in mind, hopefully the application will be edited or added too by 
 Requirements:
 - Python 3.11 or later (may work on earlier versions but not tested)
 - Autopsy file named "Dissertation" with the autopsy.db file inside (do not move or rename as could break everything)
-- Creator.db, area_codes and HintArt1 within route of where Call Log Learner is stored
-- Tkinter verion 8.6 or later (may work on earlier versions but not tested)
-- Pillow 11.1.0 (may work on earlier versions but not tested)
 """
 import os
 import sqlite3
@@ -135,16 +132,16 @@ def handle_usa_code(call_log_info):
         #shows notification window 4
         show_notification_window4()
 
-        # Creates window for state and area code selection
+        #Creates window for state and area code selection
         selection_window = tk.Toplevel()
         selection_window.title("Select State and Area Code")
         selection_window.geometry("355x160+1100+150")  # Set size and position (width x height + x + y)
 
-        # Create and organise frames
+        #Create and organise frames
         selection_frame = ttk.Frame(selection_window, padding="10")
         selection_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Create labels and comboboxes for state and area code selection
+        #Create labels and comboboxes for state and area code selection
         ttk.Label(selection_frame, text="Select a State:").grid(row=0, column=0, sticky=tk.W, pady=5)
         state_var = tk.StringVar()
         state_combobox = ttk.Combobox(selection_frame, textvariable=state_var, values=list(valid_states.keys()), width=30)
@@ -154,14 +151,14 @@ def handle_usa_code(call_log_info):
         area_code_combobox = ttk.Combobox(selection_frame, textvariable=area_code_var, width=30)
         area_code_combobox.grid(row=1, column=1, padx=5, sticky=tk.W)
 
-        # Button runs def update_area_codes
+        #Button runs def update_area_codes
         state_combobox.bind("<<ComboboxSelected>>", lambda event: update_area_codes(state_var, valid_states, area_code_combobox))
 
-        # Create a button to display filtered phone numbers
+        #Create a button to display filtered phone numbers
         display_button = ttk.Button(selection_frame, text="Display Phone Numbers", command=lambda: display_phone_numbers(state_var, area_code_var, call_log_info, valid_states))
         display_button.grid(row=2, column=0, columnspan=2, pady=10)
        
-        # Create a button to display all phone numbers
+        #Create a button to display all phone numbers
         display_all_button = ttk.Button(selection_frame, text="Display All Phone Numbers", command=lambda: display_all_phone_numbers(call_log_info))
         display_all_button.grid(row=3, column=0, columnspan=2, pady=10)
     #Error handling for database error
@@ -197,7 +194,7 @@ def display_phone_numbers(state_var, area_code_var, call_log_info, valid_states)
     selected_area_code = area_code_var.get()
     #removes any previous output
     result_text.delete("1.0", tk.END)
-    #if an area code is selected - the phone numbers are filtered by area code (the three digits after the country code)
+    #If an area code is selected - the phone numbers are filtered by area code (the three digits after the country code)
     if selected_area_code:
         result_text.insert(tk.END, "\nPhone Numbers associated with the area code:\n")
         result_text.insert(tk.END, "-" * 60 + "\n")
@@ -209,7 +206,7 @@ def display_phone_numbers(state_var, area_code_var, call_log_info, valid_states)
                 result_text.insert(tk.END, f"File Path: {info['File Path']}\n")
                 index += 1
         result_text.insert(tk.END, "-" * 60 + "\n")
-    #if just a state is selected - the phone numbers are filtered by state
+    #If just a state is selected - the phone numbers are filtered by state
     elif selected_state in valid_states:
         result_text.insert(tk.END, "\nPhone Numbers associated with the state:\n")
         result_text.insert(tk.END, "-" * 60 + "\n")
@@ -222,7 +219,7 @@ def display_phone_numbers(state_var, area_code_var, call_log_info, valid_states)
                     result_text.insert(tk.END, f"File Path: {info['File Path']}\n")
                     index += 1
         result_text.insert(tk.END, "-" * 60 + "\n")
-    #if user is able to select invalid state or area code - error message
+    #If user is able to select invalid state or area code - error message
     else:
         result_text.insert(tk.END, "No matching phone details from state or area code selected.\n")
 
@@ -330,13 +327,13 @@ def show_main_window():
     root.title("Call Log Learner")
     root.geometry("800x700+300+100") 
 
-    # Create and organize frames
+    #Creates and organize frames
     input_frame = ttk.Frame(root, padding="10")
     input_frame.pack(fill=tk.X)
     result_frame = ttk.Frame(root, padding="10")
     result_frame.pack(fill=tk.BOTH, expand=True)
 
-    # Create labels, inputs, and buttons in the input frame
+    #Creates labels, inputs, and buttons for the input frame
     ttk.Label(input_frame, text="Select your Autopsy Case Folder:").grid(row=0, column=0, sticky=tk.W)
     #Entry box for folder directory
     folder_directory_var = tk.StringVar()
@@ -388,8 +385,8 @@ def show_notification_window1():
             "Online tools such as dbdiagram.io for visualising the database\n"
         ),
         justify="center",
-        wraplength=450  # Adjusted to match new window width
-    ).pack(pady=20)  # Increased padding
+        wraplength=450 
+    ).pack(pady=20)  
 
 #Notification window2 - what's what?
 def show_notification_window2():
@@ -398,13 +395,13 @@ def show_notification_window2():
     notification_window2.attributes("-topmost", True)
     notification_window2.geometry("500x300")  
     
-    # label content
+    #Label content
     ttk.Label(
         notification_window2,
         text=(
             "Below this screen is your main window for call log analysis\n\n"
             "On the left you will see the navigation bar\n"
-            "This will allow you to bring back helpful pop-ups that you may have closed\n\n"
+            "This will allow you to bring back helpful notifications that you may have closed\n\n"
             "Please click browse and select the autopsy file previosuly provided\n"
             "The program will then extract the call log data\n\n"
             "Note for this version of the program that is just the following info:\n"
@@ -414,10 +411,10 @@ def show_notification_window2():
         wraplength=450  
     ).pack(pady=40)  
 
-    # Force update to calculate window size
+    #Force update to calculate window size
     notification_window2.update_idletasks()
     
-    # Center window relative to main window
+    #Center window relative to main window
     main_window_x = root.winfo_x()
     main_window_y = root.winfo_y()
     main_window_width = root.winfo_width()
@@ -429,7 +426,7 @@ def show_notification_window2():
     position_right = int(main_window_x + (main_window_width/2) - (window_width/2))
     position_down = int(main_window_y + (main_window_height/2) - (window_height/2))
 
-    #sets notification window position using coordinates 
+    #Sets notification window position using coordinates 
     notification_window2.geometry(f"+{position_right}+{position_down}")
 
 #Notification window3 - country code help
@@ -495,7 +492,7 @@ def show_notification_window5():
     notification_window5 = tk.Toplevel(root)
     notification_window5.title("Task")
     notification_window5.attributes("-topmost", True)
-    notification_window5.geometry("600x355+75+550")  
+    notification_window5.geometry("950x900+400+50")  
 
     ttk.Label(
     notification_window5,
@@ -504,16 +501,53 @@ def show_notification_window5():
         "Phone number - which has been enumerated for convenience (phone number 1, phone number 2, etc)\n"
         "File name - the name of the file in which the phone number is stored\n"
         "File location - this is where the phone number is stored according to the tool\n"
-        "By using the Display Phone numbers button you can see just the filtered results\n\n"
-        "Task- click the Display all Phone Numbers button\n"
-        "You will be able to see all the valid phone numbers that belong to this Autopsy data set\n"
-        "Open up the the Autopsy file within Autopsy and find the following phone number: +12066578759\n"
-        "If you are able to find this phone number, compare the results to the data displayed within this tool and write a paragraph on your findings\n"
-        "Open up Notification 6 for the answer and an optional task and what to look out for in the future\n"
+        "Task- Find the following phone number: +12066578759 and compare results to this screenshot from Autopsy\n"
         ),
         justify="center",
-        wraplength=540
-    ).pack(pady=40)
+        wraplength=620
+    ).pack(pady=5)
+
+    #Path to the image to display
+    image_path = r"./HintArt2.png"
+    
+    try:
+        #Open the image file
+        image = Image.open(image_path)
+    except Exception as e:
+        print("Error opening image:", e)
+        return
+
+    #Calculate new dimensions at half the size
+    new_width = image.width // 2
+    new_height = image.height // 2
+
+    #Resize the image to half its original width and height using lanczos resampling
+    image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+    photo = ImageTk.PhotoImage(image)
+
+    #Keep a reference to image - prevents garbage collection
+    notification_window5.photo = photo
+
+    #Display the image in a label with 1 pixel of padding
+    image_label = ttk.Label(notification_window5, image=photo)
+    image_label.pack(pady=1)
+
+
+    text_label2 = (
+        "Task continued - The aim of this task is to be able to use Call Log Learner effectively\n"
+        "To do this, you will need to break the phone number down and conduct research\n"
+        "The research you will need to do requires you to find out how American phone numbers are structured and formatted\n"
+        "This will help you to identify the State and area code details - which can be directly used within the tool\n"
+        "The Idea of 'research before you do' is an approach which will help you to think like a Digital Forensic Investigator\n"
+        "When completing this task, ensure to make notes. When completed or stuck - click the Task Help Button\n"
+    )
+    text_label2 = ttk.Label(
+        notification_window5,
+        text=text_label2,
+        justify="center",
+        wraplength=620  
+    ).pack(pady=5)
+
 
 #Notification window6 - task help
 def show_notification_window6():
@@ -521,24 +555,45 @@ def show_notification_window6():
     notification_window6.title("Task Help")
     notification_window6.attributes("-topmost", True)
     notification_window6.geometry("1300x900+75+50")  
-
-    text_label = ttk.Label(
-        notification_window6,
-        text=(
-        "The Phone number +12066578759 was Phone number 3 when searching for all phone numbers\n"
-        "There was more than one way to find this though. Manually finding the phone number was easiest in this case but may not always be\n"
-        "If you were to research how American phone numbers are formatted, using a website such as: https://www.worldatlas.com/na/us/area-codes.html\n"
-        "You would be able to identify the phone number as being from the state of Washington and be able to find the phone number using state and area code filters\n"
-        "Now when making notes on this phone number we hope that you were able to idenfitfy a discrepancy when compared to Autopsy\n"
-        "As you can see from the screenshor below, the file path for both are different \n"
-        ),
-        justify="center",
-        wraplength=700
+    
+    text_label1 = (
+       "When researching American phone numbers you should have comew across websites such as: "
     )
-    text_label.pack(pady=10)
+    text_label1 = ttk.Label(
+        notification_window6,
+        text=text_label1,
+        justify="center",
+        wraplength=700  
+    )
+    text_label1.pack(pady=10)
+
+    urlL = "https://www.worldatlas.com/na/us/area-codes.html"
+    urlL_label = tk.Label(notification_window6, text="USA Area Code information", fg="blue", cursor="hand2")
+    urlL_label.pack(pady=10)
+    urlL_label.bind("<Button-1>", lambda e: webbrowser.open_new(urlL))
+
+
+    text_label2 = (
+        "By doing this research you should be able to identify the following:\n"
+        "The phone number was from the state of Washington\n"
+        "The area code is the three digits after the country code\n"
+        "When making notes, hopefully you were able to identify a discrepancy when compared to Autopsy\n"
+        "As you can see from the screenshot below, the file path for both is different \n"
+    )
+
+    # Create and pack the second label
+    text_label2 = ttk.Label(
+        notification_window6,
+        text=text_label2,
+        justify="center",
+        wraplength=700  #Same wrapping as first label
+    )
+    text_label2.pack(pady=10)
+
+
 
     #Path to the image to display
-    image_path = r"C:\Users\Jack\OneDrive - University of Gloucestershire\Diss\Diss Assignment\Dissertation\HintArt1.png"
+    image_path = r"./HintArt1.png"
     
     try:
         #Open the image file
@@ -568,9 +623,9 @@ def show_notification_window6():
         text=(
         "In Digital Forensics it is important to check results and compare with multiple tools\n"
         "To do this, it requires the use of knowledge and research to try and conclude which tool is correct\n"
-        "Although, is not the main goal, the main point here to check results and to ensure any notes takes reflect the drawbaacks of certain tools"
+        "Although, not the main goal, the main point here is to check results and ensure any notes takes reflect the drawbacks of certain tools\n"
         "As a novice you are not expected to know everything - ensure to research and ask questions to come to correct conclusions\n"
-        "We recommend you to research into the Android 14 database to see where Phone numbers are typically stored\n"
+        "We recommend you research into the Android 14 database to see where Phone numbers are typically stored\n"
         "If completing this task - update the notes you made"
         ),
         justify="center",
@@ -597,8 +652,8 @@ def show_navigation_bar():
     #Buttons to show the notifications and their respective def
     ttk.Button(nav_bar, text="What's what?", command=show_notification_window2, width=30).pack(pady=10)
     ttk.Button(nav_bar, text="Browse Button Help", command=show_notification_window1, width=30).pack(pady=10)
-    ttk.Button(nav_bar, text="Browse Button Help", command=show_notification_window3, width=30).pack(pady=10)
-    ttk.Button(nav_bar, text="Selecting State and Area Code Help", command=show_notification_window4, width=30).pack(pady=10)
+    ttk.Button(nav_bar, text="Country Code Help", command=show_notification_window3, width=30).pack(pady=10)
+    ttk.Button(nav_bar, text="Selecting State & Area Code Help", command=show_notification_window4, width=30).pack(pady=10)
     ttk.Button(nav_bar, text="Task", command=show_notification_window5, width=30).pack(pady=10)
     ttk.Button(nav_bar, text="Task Help", command=show_notification_window6, width=30).pack(pady=10)
 
